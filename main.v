@@ -91,7 +91,6 @@ module cpu(
     );
 
     
-
     alu_control alu_control_inst(
         .ALUOp(ALUOp),
         .funct(instruction_memory[cur_addr][5:0]),
@@ -99,7 +98,6 @@ module cpu(
     );
 
     
-
     alu alu_inst(
         .alu_control(alu_control),
         .a(read_data_reg_1),
@@ -107,7 +105,6 @@ module cpu(
         .result(alu_result),
         .zero(zero)
     );
-
 
 
     data_memory data_memory_inst(
@@ -118,5 +115,5 @@ module cpu(
         .write_data_memory(write_data_memory),
         .read_data_memory(read_data_memory)
     );
-
+    
 endmodule
