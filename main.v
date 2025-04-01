@@ -4,15 +4,7 @@
 `include "pc.v"
 `include "register_file.v"
 `include "alu_control.v"
-
-module pc_handler(
-    input wire [9:0] cur_addr,
-    output wire [9:0] next_addr
-);
-    assign next_addr = cur_addr + 1;
-endmodule
-
-
+`include "data_memory.v"
 
 
 module cpu(
@@ -28,21 +20,11 @@ module cpu(
         end
     endgenerate
 
-
+    // PC wires
     wire [9:0] cur_addr;
     wire [9:0] next_addr;
-    pc_handler pc_handler(
-        .cur_addr(cur_addr),
-        .next_addr(next_addr)
-    );
 
-    pc pc(
-        .clk(clk),
-        .rst(rst),
-        .pc_in(next_addr),
-        .pc_out(cur_addr)
-    );
-
+    // Control wires
     wire regDst;
     wire regWrite;
     wire Branch;
@@ -52,12 +34,38 @@ module cpu(
     wire [1:0] ALUOp;
     wire ALUSrc;
 
-
+    // Register file wires
     wire [31:0] write_data_reg;
     wire [31:0] read_data_reg_1;
     wire [31:0] read_data_reg_2;
 
-    Control control(
+    // ALU wires
+    wire [31:0] alu_result;
+    wire [3:0] alu_control;
+    wire zero;
+
+    // Data memory wires
+    wire [31:0] memory_address = alu_result;
+    wire [31:0] write_data_memory;
+    wire [31:0] read_data_memory;
+
+    // Other wires
+    wire [31:0] signextended_15_0 = {{16{instruction_memory[cur_addr][15]}}, instruction_memory[cur_addr][15:0]};
+
+    // assignments
+    assign write_data_reg = MemtoReg == 1 ? read_data_memory : memory_address;
+    assign memory_address = alu_result;
+    assign write_data_memory = read_data_reg_2;
+    assign next_addr = (Branch & zero) == 1? cur_addr + 1 + signextended_15_0 : cur_addr + 1 ;
+
+    pc pc_inst(
+        .clk(clk),
+        .rst(rst),
+        .pc_in(next_addr),
+        .pc_out(cur_addr)
+    );
+
+    control control_inst(
         .opcode(instruction_memory[cur_addr][31:26]),
         .regDst(regDst),
         .regWrite(regWrite),
@@ -70,7 +78,7 @@ module cpu(
     );
 
 
-    register_file register_file(
+    register_file register_file_inst(
         .clk(clk),
         .rst(rst),
         .read_reg_1(instruction_memory[cur_addr][25:21]),
@@ -82,24 +90,33 @@ module cpu(
         .read_data_reg_2(read_data_reg_2)
     );
 
-    wire [3:0] alu_control;
+    
 
-    alu_control alu_con(
+    alu_control alu_control_inst(
         .ALUOp(ALUOp),
         .funct(instruction_memory[cur_addr][5:0]),
         .alu_control(alu_control)
     );
 
-    wire [31:0] signextended_15_0 = {{16{instruction_memory[cur_addr][15]}}, instruction_memory[cur_addr][15:0]};
-    wire zero;
-    alu alu(
+    
+
+    alu alu_inst(
         .alu_control(alu_control),
         .a(read_data_reg_1),
         .b(ALUSrc == 1 ? signextended_15_0 : read_data_reg_2),
-        .result(write_data_reg),
+        .result(alu_result),
         .zero(zero)
     );
 
-    //assign write_data_reg = MemtoReg == 1 ? memory[cur_addr] : write_data_reg;
+
+
+    data_memory data_memory_inst(
+        .clk(clk),
+        .memWrite(MemWrite),
+        .memRead(MemRead),
+        .address(memory_address),
+        .write_data_memory(write_data_memory),
+        .read_data_memory(read_data_memory)
+    );
 
 endmodule
