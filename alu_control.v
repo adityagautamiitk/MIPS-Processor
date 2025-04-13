@@ -25,7 +25,7 @@ module alu_control(
                     6'b000011: alu_control = 6'b000011; // SRA
                     6'b100110: alu_control = 6'b100110; // XOR
                     6'b101000: alu_control = 6'b101000; // NOT (custom)
-                    6'b100001: alu_control = 6'b100111; // NOR
+                    6'b100111: alu_control = 6'b100111; // NOR
                     6'b101010: alu_control = 6'b101010; // SLT
                     6'b101011: alu_control = 6'b101011; // SLTU
                     6'b010000: alu_control = 6'b010000; // MFHI

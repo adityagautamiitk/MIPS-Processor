@@ -52,7 +52,7 @@ module cpu(
 
     // Other wires
     wire [31:0] signextended_15_0 = {{16{instruction_memory[cur_addr][15]}}, instruction_memory[cur_addr][15:0]};
-
+    //$monitor("signextended_15_0: %h", signextended_15_0);
     // assignments
     assign write_data_reg = MemtoReg == 1 ? read_data_memory : memory_address;
     assign memory_address = alu_result;
@@ -84,14 +84,14 @@ module cpu(
         .rst(rst),
         .read_reg_1(instruction_memory[cur_addr][25:21]),
         .read_reg_2(instruction_memory[cur_addr][20:16]),
-        .write_reg(RegDst == 1 ? instruction_memory[cur_addr][15:11] : instruction_memory[cur_addr][20:16]),
+        .write_reg(regDst == 1 ? instruction_memory[cur_addr][15:11] : instruction_memory[cur_addr][20:16]),
         .write_data_reg(write_data_reg),
         .regWrite(regWrite),
         .read_data_reg_1(read_data_reg_1),
         .read_data_reg_2(read_data_reg_2)
     );
 
-    
+
     alu_control alu_control_inst(
         .ALUOp(ALUOp),
         .funct(instruction_memory[cur_addr][5:0]),

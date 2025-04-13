@@ -22,6 +22,10 @@ module register_file(
             end
         end else if (regWrite) begin
             registers[write_reg] <= write_data_reg;
+            if(write_reg != 0) begin
+                $display("Register %d: %h", write_reg, write_data_reg);
+            end
+            
         end
     end
 endmodule

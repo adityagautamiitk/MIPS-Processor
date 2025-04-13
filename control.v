@@ -33,6 +33,17 @@ module control(
                 ALUOp = 2'b00; // Load operation
                 ALUSrc = 1; // Immediate source
             end
+            //  addi
+            6'b001000: begin // addi instruction
+                regDst = 0;
+                regWrite = 1;
+                Branch = 0;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 2'b00; // ALU operation
+                ALUSrc = 1; // Immediate source
+            end
             default: begin // Default case for other instructions
                 regDst = 0;
                 regWrite = 0;
