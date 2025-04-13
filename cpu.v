@@ -41,8 +41,9 @@ module cpu(
 
     // ALU wires
     wire [31:0] alu_result;
-    wire [3:0] alu_control;
+    wire [5:0] alu_control;
     wire zero;
+    wire [4:0] shamt = instruction_memory[cur_addr][10:6];
 
     // Data memory wires
     wire [31:0] memory_address = alu_result;
@@ -103,7 +104,8 @@ module cpu(
         .a(read_data_reg_1),
         .b(ALUSrc == 1 ? signextended_15_0 : read_data_reg_2),
         .result(alu_result),
-        .zero(zero)
+        .zero(zero),
+        .shamt(shamt)
     );
 
 
