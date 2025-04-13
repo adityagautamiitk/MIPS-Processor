@@ -23,7 +23,7 @@ module register_file(
         end else if (regWrite) begin
             registers[write_reg] <= write_data_reg;
             if(write_reg != 0) begin
-                $display("Register %d: %h", write_reg, write_data_reg);
+                $display("Register %d: %d at time: %t", write_reg, write_data_reg, $time);
             end
             
         end

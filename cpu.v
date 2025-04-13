@@ -105,7 +105,9 @@ module cpu(
         .b(ALUSrc == 1 ? signextended_15_0 : read_data_reg_2),
         .result(alu_result),
         .zero(zero),
-        .shamt(shamt)
+        .shamt(shamt),
+        .clk(clk),
+        .rst(rst)
     );
 
 
