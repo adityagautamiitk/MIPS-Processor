@@ -24,7 +24,11 @@ module tb();
         instruction_stream[127:96] = 32'b000000_00001_00010_00000_00000_011000; // mul $3, $1, $2
         // store lo in $3
         instruction_stream[159:128] = 32'b000000_00000_00000_00011_00000_010010; // mflo $3
-        //instruction_stream[127:96] = 32'b000000_00001_00001_00001_00000_100000; // add $1, $1, $1
+        // shift $3 by 3 to the right
+        instruction_stream[191:160] = 32'b000000_00000_00011_00011_00011_000010 ; // sll $3, $3, 2
+        // check if $3 = 3 using seq
+        // instruction_stream[223:192] = 32'b011000_00011_00000_00001_00000_101010; // slt $1, $3, $0
+
         #10 
         rst = 0;
         #100 $finish;

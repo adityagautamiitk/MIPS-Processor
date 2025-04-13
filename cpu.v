@@ -31,7 +31,7 @@ module cpu(
     wire MemRead;
     wire MemtoReg;
     wire MemWrite;
-    wire [1:0] ALUOp;
+    wire [4:0] ALUOp;
     wire ALUSrc;
 
     // Register file wires
@@ -44,7 +44,7 @@ module cpu(
     wire [5:0] alu_control;
     wire zero;
     wire [4:0] shamt = instruction_memory[cur_addr][10:6];
-
+    wire [15:0] immediate = instruction_memory[cur_addr][15:0];
     // Data memory wires
     wire [31:0] memory_address = alu_result;
     wire [31:0] write_data_memory;
@@ -106,6 +106,7 @@ module cpu(
         .result(alu_result),
         .zero(zero),
         .shamt(shamt),
+        .immediate(immediate),
         .clk(clk),
         .rst(rst)
     );

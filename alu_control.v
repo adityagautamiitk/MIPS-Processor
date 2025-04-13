@@ -1,14 +1,14 @@
 module alu_control(
     input wire [5:0] funct,
-    input wire [1:0] ALUOp,
+    input wire [4:0] ALUOp,
     output reg [5:0] alu_control
 );
     // ALU control signals
     always @(*) begin
         case(ALUOp)
-            2'b00: alu_control = 6'b100000; // ADD
-            2'b01: alu_control = 6'b100010; // SUB
-            2'b10: begin // R type instruction
+            // 5'b00000: alu_control = 6'b100000; 
+            // 5'b00001: alu_control = 6'b100010; 
+            5'b00010: begin // R type instruction
                 case (funct)
                     6'b100000: alu_control = 6'b100000; // ADD
                     6'b100001: alu_control = 6'b100001; // ADDU
@@ -30,13 +30,21 @@ module alu_control(
                     6'b101011: alu_control = 6'b101011; // SLTU
                     6'b010000: alu_control = 6'b010000; // MFHI
                     6'b010010: alu_control = 6'b010010; // MFLO
-
+                    // SEQ (set if equal)
                     default:   alu_control = 6'b111111; // Invalid operation
                     // Other operations like jr, mflo, mfhi to be added soon
 
                 endcase
             end
-            default: alu_control = 4'b1111; // Invalid operation
+            5'b00011: alu_control = 6'b100000; // ADDI
+            5'b00100: alu_control = 6'b100100; // ANDI
+            5'b00101: alu_control = 6'b100101; // ORI
+            5'b00110: alu_control = 6'b100110; // XORI
+            5'b00111: alu_control = 6'b101010; // SLTI
+            5'b01000: alu_control = 6'b101011; // SLTIU
+            5'b01001: alu_control = 6'b101100; // SEQ (Set if equal)
+
+            default: alu_control = 6'b111111; // Invalid operation
         endcase
     end
 endmodule

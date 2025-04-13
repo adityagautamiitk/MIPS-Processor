@@ -3,13 +3,17 @@ module alu(
     input wire [31:0] b,
     input wire [5:0] alu_control,
     input wire [4:0] shamt,
-    output reg [31:0] result,
-    output reg zero,
+    input wire [15:0] immediate,
     input wire clk,
-    input wire rst
+    input wire rst,
+
+    output reg [31:0] result,
+    output reg zero
 );
     reg [31:0] Hi, Lo;
     
+    wire [31:0] signExtImmediate = {{16{immediate[15]}}, immediate};
+    wire [31:0] zeroExtImmediate = {16'b0, immediate};
 
         always @(posedge clk or posedge rst) begin
         if (rst) begin
@@ -19,19 +23,15 @@ module alu(
             case (alu_control)
                 6'b011000: begin // MULT
                     {Hi, Lo} <= $signed(a) * $signed(b);
-                    result <= Lo;
                 end
                 6'b011001: begin // MULTU
                     {Hi, Lo} <= a * b;
-                    result <= Lo;
                 end
                 6'b011100: begin // MADD
                     {Hi, Lo} <= {Hi, Lo} + ($signed(a) * $signed(b));
-                    result <= Lo;
                 end
                 6'b011101: begin // MADDU
                     {Hi, Lo} <= {Hi, Lo} + (a * b);
-                    result <= Lo;
                 end
                 default:   ; // No change to Hi/Lo
             endcase
@@ -44,25 +44,9 @@ module alu(
             6'b100001: result = a + b;                   // ADDU
             6'b100010: result = $signed(a) - $signed(b); // SUB
             6'b100011: result = a - b;                   // SUBU
-            // 6'b011000: begin                        // MULT
-            //     {Hi, Lo} = $signed(a) * $signed(b);
-            //     result = 32'b0;
-            // end
-            // 6'b011001: begin                        // MULTU
-            //     {Hi, Lo} = a * b;
-            //     result = 32'b0;
-            // end
-            // 6'b011100: begin                        // MADD
-            //     {Hi, Lo} = {Hi, Lo} + ($signed(a) * $signed(b));
-            //     result = 32'b0;
-            // end
-            // 6'b011101: begin                        // MADDU
-            //     {Hi, Lo} = {Hi, Lo} + (a * b);
-            //     result = 32'b0;
-            // end
             6'b100100: result = a & b;              // AND
             6'b100101: result = a | b;              // OR
-            6'b000000: result = b << shamt;         // SLL
+            6'b000000: result = b << shamt;         // SLL identical to SLA
             6'b000010: result = b >> shamt;         // SRL
             6'b000011: result = $signed(b) >>> shamt; // SRA
             6'b100110: result = a ^ b;              // XOR
@@ -72,6 +56,8 @@ module alu(
             6'b101011: result = (a < b) ? 1 : 0;     // SLTU
             6'b010000: result = Hi;                 // MFHI
             6'b010010: result = Lo;                 // MFLO
+            6'b101100: result = ($signed(a) == $signed(b)) ? 1 : 0; // SEQ (set if equal)
+            
             default:   result = 32'b0;
         endcase
         zero = (result == 0);
