@@ -28,7 +28,7 @@ endmodule
 module alu(
     input wire [31:0] a,
     input wire [31:0] b,
-    input wire [3:0] alu_control,
+    input wire [5:0] alu_control,
     output reg [31:0] result,
     output reg zero
 );
