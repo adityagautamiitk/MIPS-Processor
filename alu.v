@@ -1,4 +1,3 @@
-
 module alu(
     input wire [31:0] a,
     input wire [31:0] b,
@@ -9,6 +8,43 @@ module alu(
 );
     reg [31:0] Hi, Lo;
     
-    // implementation of the ALU operations to be done
+    always @(*) begin
+        case (alu_control)
+            6'b100000: result = $signed(a) + $signed(b); // ADD
+            6'b100001: result = a + b;                   // ADDU
+            6'b100010: result = $signed(a) - $signed(b); // SUB
+            6'b100011: result = a - b;                   // SUBU
+            6'b011000: begin                        // MULT
+                {Hi, Lo} = $signed(a) * $signed(b);
+                result = 32'b0;
+            end
+            6'b011001: begin                        // MULTU
+                {Hi, Lo} = a * b;
+                result = 32'b0;
+            end
+            6'b011100: begin                        // MADD
+                {Hi, Lo} = {Hi, Lo} + ($signed(a) * $signed(b));
+                result = 32'b0;
+            end
+            6'b011101: begin                        // MADDU
+                {Hi, Lo} = {Hi, Lo} + (a * b);
+                result = 32'b0;
+            end
+            6'b100100: result = a & b;              // AND
+            6'b100101: result = a | b;              // OR
+            6'b000000: result = b << shamt;         // SLL
+            6'b000010: result = b >> shamt;         // SRL
+            6'b000011: result = $signed(b) >>> shamt; // SRA
+            6'b100110: result = a ^ b;              // XOR
+            6'b101000: result = ~b;                 // NOT (custom)
+            6'b100111: result = ~(a | b);           // NOR
+            6'b101010: result = ($signed(a) < $signed(b)) ? 1 : 0; // SLT
+            6'b101011: result = (a < b) ? 1 : 0;     // SLTU
+            6'b010000: result = Hi;                 // MFHI
+            6'b010010: result = Lo;                 // MFLO
+            default:   result = 32'b0;
+        endcase
+        zero = (result == 0);
+    end
 
 endmodule
