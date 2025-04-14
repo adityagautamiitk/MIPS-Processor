@@ -6,7 +6,7 @@ module alu_control(
     // ALU control signals
     always @(*) begin
         case(ALUOp)
-            // 5'b00000: alu_control = 6'b100000; 
+            5'b00000: alu_control = 6'b100000; // ADD for lw/sw address calculation
             // 5'b00001: alu_control = 6'b100010; 
             5'b00010: begin // R type instruction
                 case (funct)

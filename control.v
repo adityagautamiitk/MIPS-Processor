@@ -222,6 +222,19 @@ module control(
                 ALUOp = 5'b01001; // ALU operation
                 ALUSrc = 1; // Immediate source
             end
+            6'b101011: begin // sw instruction
+                regDst = 0;    // Don't care (not writing to register)
+                regWrite = 0;  // Not writing to register
+                Branch = 0;
+                MemRead = 0;
+                MemtoReg = 0;  // Don't care (not writing to register)
+                MemWrite = 1;  // Write to memory
+                ALUOp = 5'b00000; // Same as lw - ADD operation
+                ALUSrc = 1;    // Use immediate for address calculation
+                Jump = 0;
+                JumpReg = 0;
+                JumpLink = 0;
+            end
         endcase
     end
 endmodule
