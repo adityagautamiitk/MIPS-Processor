@@ -1,5 +1,6 @@
 module control(
     input wire [5:0] opcode,
+    input wire [5:0] funct,
 
     output reg regDst,
     output reg regWrite,
@@ -31,7 +32,7 @@ module control(
         case (opcode)
             6'b000000: begin // R-type instructions
                 regDst = 1;
-                regWrite = 1;
+                regWrite = (funct != 6'b001000); // Don't write for JR. Important Fix.
                 Branch = 0;
                 MemRead = 0;
                 MemtoReg = 0;
@@ -39,6 +40,9 @@ module control(
                 ALUOp = 5'b00010; // ALU operation
                 ALUSrc = 0; // Register source
                 // JR handled in CPU based on funct field
+                Jump = 0;
+                JumpReg = (funct == 6'b001000); // Set JumpReg for JR
+                JumpLink = 0;
             end
             6'b100011: begin // lw instruction
                 regDst = 0;

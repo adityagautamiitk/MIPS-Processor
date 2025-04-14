@@ -14,6 +14,7 @@ module dist_mem_gen_1(
     always @(posedge clk) begin
         if (we) begin
             mem[a] <= d;
+            $display("Writing to memory address %d: %d at time: %t", a, d, $time);
         end
     end
     

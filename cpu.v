@@ -56,7 +56,7 @@ module cpu(
 
     // Jump wires
     wire [25:0] jump_target = instruction_memory[cur_addr][25:0];
-    wire [9:0] jump_address = jump_target[11:2]; // We're using 10-bit addresses
+    wire [9:0] jump_address = jump_target[11:2]; // We're using 10-bit addresses in instruction memory
 
     // Other wires
     wire [31:0] signextended_15_0 = {{16{instruction_memory[cur_addr][15]}}, instruction_memory[cur_addr][15:0]};
@@ -81,7 +81,6 @@ module cpu(
     assign next_addr = next_pc;
 
     // Instantiate modules
-
     pc pc_inst(
         .clk(clk),
         .rst(rst),
@@ -91,6 +90,7 @@ module cpu(
 
     control control_inst(
         .opcode(instruction_memory[cur_addr][31:26]),
+        .funct(instruction_memory[cur_addr][5:0]),
         .regDst(regDst),
         .regWrite(regWrite),
         .Branch(Branch),
