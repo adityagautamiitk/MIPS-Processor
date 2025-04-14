@@ -72,7 +72,7 @@ module cpu(
                          (branch_taken ? branch_addr : cur_addr + 10'd1));
 
     // Write data for registers
-    wire [31:0] pc_plus_1 = {22'd0, cur_addr + 10'd1}; // PC+1 for JAL
+    wire [31:0] pc_plus_1 = {20'd0, (cur_addr + 10'd1), 2'b00}; // (PC+1)<<2 for byte addressing in JAL
     wire [31:0] reg_write_data = JumpLink ? pc_plus_1 : 
                                 (MemtoReg ? read_data_memory : alu_result);
 
