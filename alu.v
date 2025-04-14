@@ -57,10 +57,24 @@ module alu(
             6'b010000: result = Hi;                 // MFHI
             6'b010010: result = Lo;                 // MFLO
             6'b101100: result = ($signed(a) == $signed(b)) ? 1 : 0; // SEQ (set if equal)
+            6'b101101: result = ($signed(a) != $signed(b)) ? 1 : 0; // SNE (set if not equal)
+            6'b101110: result = ($signed(a) > $signed(b)) ? 1 : 0;  // SGT (set if greater than)
+            6'b101111: result = ($signed(a) >= $signed(b)) ? 1 : 0; // SGTE (set if greater than or equal)
+            6'b110000: result = ($signed(a) < $signed(b)) ? 1 : 0;  // SLT (set if less than)
+            6'b110001: result = ($signed(a) <= $signed(b)) ? 1 : 0; // SLEQ (set if less than or equal)
+            6'b110010: result = (a <= b) ? 1 : 0;                   // SLEU (set if less than or equal unsigned)
+            6'b110011: result = (a > b) ? 1 : 0;                    // SGTU (set if greater than unsigned)
+            6'b001000: result = a;                                  // JR (pass-through for register jump)
             
             default:   result = 32'b0;
         endcase
-        zero = (result == 0);
+        
+        // For branch instructions, zero=1 means the branch is taken
+        // For comparison operations (101100-110011), result=1 means condition is true
+        if (alu_control >= 6'b101100 && alu_control <= 6'b110011)
+            zero = (result == 1);
+        else
+            zero = (result == 0);
     end
 
 endmodule

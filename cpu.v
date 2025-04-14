@@ -33,6 +33,9 @@ module cpu(
     wire MemWrite;
     wire [4:0] ALUOp;
     wire ALUSrc;
+    wire Jump;
+    wire JumpReg;
+    wire JumpLink;
 
     // Register file wires
     wire [31:0] write_data_reg;
@@ -45,19 +48,41 @@ module cpu(
     wire zero;
     wire [4:0] shamt = instruction_memory[cur_addr][10:6];
     wire [15:0] immediate = instruction_memory[cur_addr][15:0];
+    
     // Data memory wires
-    wire [31:0] memory_address = alu_result;
+    wire [31:0] memory_address = alu_result >> 2; // Convert byte address to word address
     wire [31:0] write_data_memory;
     wire [31:0] read_data_memory;
 
+    // Jump wires
+    wire [25:0] jump_target = instruction_memory[cur_addr][25:0];
+    wire [9:0] jump_address = jump_target[11:2]; // We're using 10-bit addresses
+
     // Other wires
     wire [31:0] signextended_15_0 = {{16{instruction_memory[cur_addr][15]}}, instruction_memory[cur_addr][15:0]};
-    //$monitor("signextended_15_0: %h", signextended_15_0);
+    wire [4:0] write_reg = regDst ? instruction_memory[cur_addr][15:11] : 
+                           (JumpLink ? 5'd31 : instruction_memory[cur_addr][20:16]);
+
+    // PC calculation logic
+    wire branch_taken = Branch & zero;
+    wire [9:0] branch_addr = cur_addr + 1 + signextended_15_0[11:2]; // PC+1+offset (doing >>2 effectively to get the word address)
+    wire [9:0] jr_addr = read_data_reg_1[11:2]; // Address from register for JR
+    wire [9:0] next_pc = Jump ? jump_address :
+                         (JumpReg ? jr_addr :
+                         (branch_taken ? branch_addr : cur_addr + 10'd1));
+
+    // Write data for registers
+    wire [31:0] pc_plus_1 = {22'd0, cur_addr + 10'd1}; // PC+1 for JAL
+    wire [31:0] reg_write_data = JumpLink ? pc_plus_1 : 
+                                (MemtoReg ? read_data_memory : alu_result);
+
     // assignments
-    assign write_data_reg = MemtoReg == 1 ? read_data_memory : memory_address;
-    assign memory_address = alu_result;
     assign write_data_memory = read_data_reg_2;
-    assign next_addr = (Branch & zero) == 1? cur_addr + 1 + signextended_15_0 : cur_addr + 1 ;
+    assign next_addr = next_pc;
+    
+    // Check if instruction is JR (R-type with funct=001000)
+    // wire is_jr = (instruction_memory[cur_addr][31:26] == 6'b000000) && 
+    //              (instruction_memory[cur_addr][5:0] == 6'b001000);
 
     pc pc_inst(
         .clk(clk),
@@ -75,22 +100,23 @@ module cpu(
         .MemtoReg(MemtoReg),
         .MemWrite(MemWrite),
         .ALUOp(ALUOp),
-        .ALUSrc(ALUSrc)
+        .ALUSrc(ALUSrc),
+        .Jump(Jump),
+        .JumpReg(JumpReg),
+        .JumpLink(JumpLink)
     );
-
 
     register_file register_file_inst(
         .clk(clk),
         .rst(rst),
         .read_reg_1(instruction_memory[cur_addr][25:21]),
         .read_reg_2(instruction_memory[cur_addr][20:16]),
-        .write_reg(regDst == 1 ? instruction_memory[cur_addr][15:11] : instruction_memory[cur_addr][20:16]),
-        .write_data_reg(write_data_reg),
-        .regWrite(regWrite),
+        .write_reg(write_reg),
+        .write_data_reg(reg_write_data),
+        .regWrite(regWrite | (JumpLink & Jump)), // Enable write for JAL
         .read_data_reg_1(read_data_reg_1),
         .read_data_reg_2(read_data_reg_2)
     );
-
 
     alu_control alu_control_inst(
         .ALUOp(ALUOp),

@@ -30,10 +30,8 @@ module alu_control(
                     6'b101011: alu_control = 6'b101011; // SLTU
                     6'b010000: alu_control = 6'b010000; // MFHI
                     6'b010010: alu_control = 6'b010010; // MFLO
-                    // SEQ (set if equal)
+                    6'b001000: alu_control = 6'b001000; // JR
                     default:   alu_control = 6'b111111; // Invalid operation
-                    // Other operations like jr, mflo, mfhi to be added soon
-
                 endcase
             end
             5'b00011: alu_control = 6'b100000; // ADDI
@@ -43,7 +41,14 @@ module alu_control(
             5'b00111: alu_control = 6'b101010; // SLTI
             5'b01000: alu_control = 6'b101011; // SLTIU
             5'b01001: alu_control = 6'b101100; // SEQ (Set if equal)
-
+            5'b01010: alu_control = 6'b101100; // BEQ (reuse SEQ)
+            5'b01011: alu_control = 6'b101101; // BNE
+            5'b01100: alu_control = 6'b101110; // BGT
+            5'b01101: alu_control = 6'b101111; // BGTE
+            5'b01110: alu_control = 6'b110000; // BLE
+            5'b01111: alu_control = 6'b110001; // BLEQ
+            5'b10000: alu_control = 6'b110010; // BLEU (unsigned)
+            5'b10001: alu_control = 6'b110011; // BGTU (unsigned)
             default: alu_control = 6'b111111; // Invalid operation
         endcase
     end

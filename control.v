@@ -8,10 +8,26 @@ module control(
     output reg MemtoReg,
     output reg MemWrite,
     output reg [4:0] ALUOp,
-    output reg ALUSrc
+    output reg ALUSrc,
+    output reg Jump,
+    output reg JumpReg,
+    output reg JumpLink
 ); 
 // Tentative control signals, need to be adjusted based on the mips instruction set architecture
     always @(*) begin
+        // Default values
+        regDst = 0;
+        regWrite = 0;
+        Branch = 0;
+        MemRead = 0;
+        MemtoReg = 0;
+        MemWrite = 0;
+        ALUOp = 5'b01111; // No operation
+        ALUSrc = 0;
+        Jump = 0;
+        JumpReg = 0;
+        JumpLink = 0;
+        
         case (opcode)
             6'b000000: begin // R-type instructions
                 regDst = 1;
@@ -22,6 +38,7 @@ module control(
                 MemWrite = 0;
                 ALUOp = 5'b00010; // ALU operation
                 ALUSrc = 0; // Register source
+                // JR handled in CPU based on funct field
             end
             6'b100011: begin // lw instruction
                 regDst = 0;
@@ -33,7 +50,113 @@ module control(
                 ALUOp = 5'b00000; // Load operation
                 ALUSrc = 1; // Immediate source
             end
-            //  addi
+            // Conditional Branch Instructions
+            6'b000100: begin // beq instruction
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b01010; // Equal comparison
+                ALUSrc = 0;
+            end
+            6'b000101: begin // bne instruction
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b01011; // Not equal comparison
+                ALUSrc = 0;
+            end
+            6'b000110: begin // bgt instruction (custom)
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b01100; // Greater than
+                ALUSrc = 0;
+            end
+            6'b000111: begin // bgte instruction (custom)
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b01101; // Greater than or equal
+                ALUSrc = 0;
+            end
+            6'b001001: begin // ble instruction (custom)
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b01110; // Less than
+                ALUSrc = 0;
+            end
+            6'b001011: begin // bleq instruction (custom)
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b01111; // Less than or equal
+                ALUSrc = 0;
+            end
+            6'b001111: begin // bleu instruction (custom - unsigned)
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b10000; // Less than or equal unsigned
+                ALUSrc = 0;
+            end
+            6'b010000: begin // bgtu instruction (custom - unsigned)
+                regDst = 0;
+                regWrite = 0;
+                Branch = 1;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                ALUOp = 5'b10001; // Greater than unsigned
+                ALUSrc = 0;
+            end
+            
+            // Unconditional Jump Instructions
+            6'b000010: begin // j instruction
+                regDst = 0;
+                regWrite = 0;
+                Branch = 0;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                Jump = 1;
+                JumpReg = 0;
+                JumpLink = 0;
+            end
+            6'b000011: begin // jal instruction
+                regDst = 0;
+                regWrite = 1; // Write to $ra (register 31)
+                Branch = 0;
+                MemRead = 0;
+                MemtoReg = 0;
+                MemWrite = 0;
+                Jump = 1;
+                JumpReg = 0;
+                JumpLink = 1;
+            end
+            
+            // Other instructions (already implemented)
             6'b001000: begin // addi instruction
                 regDst = 0;
                 regWrite = 1;
@@ -99,17 +222,6 @@ module control(
                 ALUOp = 5'b01001; // ALU operation
                 ALUSrc = 1; // Immediate source
             end
-            default: begin // Default case for other instructions
-                regDst = 0;
-                regWrite = 0;
-                Branch = 0;
-                MemRead = 0;
-                MemtoReg = 0;
-                MemWrite = 0;
-                ALUOp = 5'b01111; // No operation
-                ALUSrc = 0; // No immediate source
-            end
-
         endcase
     end
 endmodule
