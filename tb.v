@@ -39,7 +39,6 @@ module tb();
         
         // Test jump
         instruction_stream[415:384] = 32'b000010_00000000000000000000110100; // j 52 (13*4)
-        instruction_stream[447:416] = 32'b001000_00000_00111_0000000000000001; // addi $7, $0, 1 (skipped)
         // skipped instructions...
         
         // Instruction 13 (address 416)
@@ -47,7 +46,6 @@ module tb();
         
         // Test jump and link (jal)
         instruction_stream[479:448] = 32'b000011_00000000000000000000111100; // jal 60 (15*4)
-        instruction_stream[511:480] = 32'b001000_00000_01000_0000000000000001; // addi $8, $0, 1 (skipped)
         
         // Instruction 15 (address 480)
         instruction_stream[511:480] = 32'b001000_00000_01000_0000000000001111; // addi $8, $0, 15 (executed after jal)
