@@ -12,7 +12,7 @@ module cpu(
     input wire clk,
     input wire rst
 );
-
+    // Convert the instruction stream into a 2D array of instructions
     wire [31:0] instruction_memory[1023:0];
     generate
         for (genvar i = 0; i < 1024; i = i + 1) begin : gen_loop
@@ -79,10 +79,8 @@ module cpu(
     // assignments
     assign write_data_memory = read_data_reg_2;
     assign next_addr = next_pc;
-    
-    // Check if instruction is JR (R-type with funct=001000)
-    // wire is_jr = (instruction_memory[cur_addr][31:26] == 6'b000000) && 
-    //              (instruction_memory[cur_addr][5:0] == 6'b001000);
+
+    // Instantiate modules
 
     pc pc_inst(
         .clk(clk),
