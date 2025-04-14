@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 `include "cpu.v"
-//`include "register_file.v"
+
 module tb();
     reg clk;
     reg rst;
@@ -27,7 +27,7 @@ module tb();
         // shift $3 by 3 to the right
         instruction_stream[191:160] = 32'b000000_00000_00011_00011_00011_000010 ; // sll $3, $3, 2
         // check if $3 = 3 using seq
-        // instruction_stream[223:192] = 32'b011000_00011_00000_00001_00000_101010; // slt $1, $3, $0
+        instruction_stream[223:192] = 32'b011000_00011_00001_0000000000000011; // seq $0, $3, 3
 
         #10 
         rst = 0;

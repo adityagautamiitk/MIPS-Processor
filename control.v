@@ -96,7 +96,7 @@ module control(
                 MemRead = 0;
                 MemtoReg = 0;
                 MemWrite = 0;
-                ALUOp = 5'b01000; // ALU operation
+                ALUOp = 5'b01001; // ALU operation
                 ALUSrc = 1; // Immediate source
             end
             default: begin // Default case for other instructions
