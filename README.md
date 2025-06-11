@@ -1,7 +1,6 @@
 # MIPS-Processor
 CS220 Project, IIT Kanpur
 
-Note that, all instructions should use standard MIPS byte based addressing.
-Internally, for storage in memory and registers, we use byte based addressing, wherever an address is stored.
-However, in actual implementation of pc, data_memory, instruction_memory , we use word based addressing.
+This project implements a subset of the MIPS Architecture, capable of simulating the effect of dozens of possible types of instructions, including arithmetic, conditional, and memory instructions.
+The instruction opcodes are similar to official MIPS opcodes.
 
